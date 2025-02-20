@@ -2,10 +2,11 @@
 #include <stdbool.h>
 #include <unistd.h>
 
+#include "wifi_manager.h"
+
 void app_main(void)
 {
-    while (true) {
-        printf("Hello from app_main!\n");
-        sleep(1);
-    }
+    wifi_manager_init();
+    
+    wifi_manager_connect();
 }
