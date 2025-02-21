@@ -2,7 +2,7 @@
 #define INCLUDE_WIFI_MANAGER_H_
 
 
-#include <esp_wifi.h> // Wifi
+#include <esp_wifi.h> // Wi-Fi
 #include <esp_check.h> // Error Handling
 #include <nvs_flash.h> // NVS flash
 #include <esp_netif.h> // TCP/IP Task
@@ -15,5 +15,6 @@
 
 esp_err_t wifi_manager_init();
 esp_err_t wifi_manager_connect();
+esp_err_t wifi_manager_reset_prov();
 
 #endif /* INCLUDE_WIFI_MANAGER_H_ */

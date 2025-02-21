@@ -1,6 +1,8 @@
 #include "wifi_manager.h"
 #include "esp_err.h"
+#include "esp_wifi.h"
 #include "esp_wifi_default.h"
+#include "esp_wifi_types_generic.h"
 #include "wifi_provisioning/manager.h"
 #include "wifi_provisioning/scheme_softap.h"
 #include "wifi_provisioning/wifi_config.h"
@@ -19,7 +21,6 @@ BIT1 - Wi-Fi not connected
 EventGroupHandle_t wifi_event_group;
 
 static void event_handler(void* arg, esp_event_base_t event_base, int32_t event_id, void* event_data) {
-    static int retries;
     if (event_base == WIFI_PROV_EVENT) {
         switch (event_id) {
             case WIFI_PROV_START:
@@ -39,22 +40,12 @@ static void event_handler(void* arg, esp_event_base_t event_base, int32_t event_
                          "\n\tPlease reset to factory and retry provisioning",
                          (*reason == WIFI_PROV_STA_AUTH_ERROR) ?
                          "Wi-Fi station authentication failed" : "Wi-Fi access-point not found");
-                retries++;
-                /*if (retries >= 5) {
-                    ESP_LOGI(TAG, "Failed to connect with provisioned AP, resetting provisioned credentials");
-                    wifi_prov_mgr_reset_provisioning();
-                    wifi_prov_mgr_reset_sm_state_on_failure();
-                    retries = 0;
-                }*/
-                if (*reason == WIFI_PROV_STA_AUTH_ERROR) {
-					wifi_prov_mgr_reset_sm_state_on_failure();
-                    //wifi_manager_connect();
-				}
+                         
+                wifi_prov_mgr_reset_sm_state_on_failure();
                 break;
             }
             case WIFI_PROV_CRED_SUCCESS:
                 ESP_LOGI(TAG, "Provisioning successful");
-                retries = 0;
                 break;
             case WIFI_PROV_END:
                 /* De-initialize manager once provisioning is finished */
@@ -157,6 +148,23 @@ esp_err_t wifi_manager_connect() {
 	xEventGroupWaitBits(wifi_event_group, WIFI_CONNECTED_BIT, true, true, portMAX_DELAY);
 	
 	return ESP_OK;
+}
+
+esp_err_t wifi_manager_reset_prov() {
+	ESP_ERROR_CHECK(esp_wifi_stop());
+	
+	ESP_ERROR_CHECK(esp_wifi_restore());
+	
+	ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_APSTA));
+	
+	wifi_prov_mgr_config_t config = {
+		 .scheme = wifi_prov_scheme_softap,
+		 .scheme_event_handler = WIFI_PROV_EVENT_HANDLER_NONE
+	 };
+	 
+	 ESP_ERROR_CHECK(wifi_prov_mgr_init(config));
+	 
+	 return ESP_OK;
 }
 
 

@@ -2,9 +2,9 @@
 # for more information about component CMakeLists.txt files.
 
 idf_component_register(
-    SRCS main.c         # list the source files of this component
-    INCLUDE_DIRS        # optional, add here public include directories
+    SRCS wifi_manager.c         # list the source files of this component
+    INCLUDE_DIRS include        # optional, add here public include directories
     PRIV_INCLUDE_DIRS   # optional, add here private include directories
     REQUIRES            # optional, list the public requirements (component names)
-    PRIV_REQUIRES       # optional, list the private requirements
+    PRIV_REQUIRES       esp_wifi esp_netif nvs_flash wifi_provisioning # optional, list the private requirements
 )
